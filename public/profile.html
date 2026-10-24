@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Profile | SecureHub</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <div class="brand">
+                <div class="brand-icon">S</div>
+                <h1>SecureHub</h1>
+            </div>
+
+            <button id="logoutBtn" class="logout-btn">
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="profile-page">
+
+        <section class="profile-card">
+
+            <div class="profile-avatar" id="profileAvatar">
+                U
+            </div>
+
+            <div class="profile-heading">
+                <span class="profile-label">
+                    MY PROFILE
+                </span>
+
+                <h2 id="profileName">
+                    Loading...
+                </h2>
+
+                <p id="profileEmail">
+                    Loading...
+                </p>
+            </div>
+
+
+            <div class="profile-details">
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Full Name
+                    </span>
+
+                    <strong id="detailName">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Email Address
+                    </span>
+
+                    <strong id="detailEmail">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        User ID
+                    </span>
+
+                    <strong id="detailId">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Member Since
+                    </span>
+
+                    <strong id="detailDate">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <p id="profileMessage" class="form-message"></p>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        const profileName =
+            document.getElementById("profileName");
+
+        const profileEmail =
+            document.getElementById("profileEmail");
+
+        const profileAvatar =
+            document.getElementById("profileAvatar");
+
+        const detailName =
+            document.getElementById("detailName");
+
+        const detailEmail =
+            document.getElementById("detailEmail");
+
+        const detailId =
+            document.getElementById("detailId");
+
+        const detailDate =
+            document.getElementById("detailDate");
+
+        const profileMessage =
+            document.getElementById("profileMessage");
+
+        const logoutBtn =
+            document.getElementById("logoutBtn");
+
+
+        async function loadProfile() {
+
+            try {
+
+                const response =
+                    await fetch("/api/profile");
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok || !data.success) {
+
+                    window.location.href =
+                        "index.html";
+
+                    return;
+                }
+
+
+                const user = data.user;
+
+
+                profileName.textContent =
+                    user.name;
+
+                profileEmail.textContent =
+                    user.email;
+
+
+                detailName.textContent =
+                    user.name;
+
+                detailEmail.textContent =
+                    user.email;
+
+                detailId.textContent =
+                    user.id;
+
+
+                const date =
+                    new Date(user.created_at);
+
+                detailDate.textContent =
+                    date.toLocaleDateString(
+                        "en-IN",
+                        {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric"
+                        }
+                    );
+
+
+                profileAvatar.textContent =
+                    user.name
+                        .charAt(0)
+                        .toUpperCase();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                profileMessage.textContent =
+                    "Unable to load profile.";
+
+                profileMessage.className =
+                    "form-message error-message";
+            }
+        }
+
+
+        logoutBtn.addEventListener(
+            "click",
+            async function () {
+
+                try {
+
+                    logoutBtn.disabled = true;
+
+                    logoutBtn.textContent =
+                        "Logging out...";
+
+
+                    const response =
+                        await fetch(
+                            "/api/logout",
+                            {
+                                method: "POST"
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+                        throw new Error(
+                            data.message ||
+                            "Logout failed."
+                        );
+                    }
+
+
+                    window.location.href =
+                        "index.html";
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    profileMessage.textContent =
+                        error.message;
+
+                    profileMessage.className =
+                        "form-message error-message";
+
+
+                    logoutBtn.disabled = false;
+
+                    logoutBtn.textContent =
+                        "Logout";
+                }
+
+            }
+        );
+
+
+        loadProfile();
+
+    </script>
+
+</body>
+</html>

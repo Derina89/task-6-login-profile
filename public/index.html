@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | SecureHub</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-card">
+
+            <div class="brand">
+                <div class="brand-icon">S</div>
+                <h1>SecureHub</h1>
+            </div>
+
+            <div class="auth-heading">
+                <h2>Welcome back</h2>
+                <p>Login to access your profile.</p>
+            </div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                    <small id="emailError" class="error"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                    <small id="passwordError" class="error"></small>
+                </div>
+
+                <button type="submit" class="primary-btn" id="loginBtn">
+                    Login
+                </button>
+
+                <p id="formMessage" class="form-message"></p>
+
+            </form>
+
+            <div class="auth-footer">
+                <p>
+                    Don't have an account?
+                    <a href="register.html">Create an account</a>
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+
+        const formMessage = document.getElementById("formMessage");
+        const loginBtn = document.getElementById("loginBtn");
+
+        loginForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            formMessage.textContent = "";
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            let valid = true;
+
+            if (!email) {
+                emailError.textContent = "Email is required.";
+                valid = false;
+            }
+
+            if (!password) {
+                passwordError.textContent = "Password is required.";
+                valid = false;
+            }
+
+            if (!valid) {
+                return;
+            }
+
+            try {
+
+                loginBtn.disabled = true;
+                loginBtn.textContent = "Logging in...";
+
+                const response = await fetch("/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.message || "Login failed."
+                    );
+                }
+
+                formMessage.textContent = "Login successful!";
+                formMessage.className =
+                    "form-message success";
+
+                setTimeout(() => {
+                    window.location.href = "profile.html";
+                }, 700);
+
+            } catch (error) {
+
+                console.error(error);
+
+                formMessage.textContent = error.message;
+                formMessage.className =
+                    "form-message error-message";
+
+            } finally {
+
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Login";
+            }
+
+        });
+    </script>
+
+</body>
+</html>

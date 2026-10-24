@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | SecureHub</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-card">
+
+            <div class="brand">
+                <div class="brand-icon">S</div>
+                <h1>SecureHub</h1>
+            </div>
+
+            <div class="auth-heading">
+                <h2>Create your account</h2>
+                <p>Register to get started with SecureHub.</p>
+            </div>
+
+            <form id="registerForm">
+
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Enter your full name"
+                        required
+                    >
+
+                    <small id="nameError" class="error"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                    <small id="emailError" class="error"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a password"
+                        required
+                    >
+
+                    <small class="input-hint">
+                        Password must contain at least 6 characters.
+                    </small>
+
+                    <small id="passwordError" class="error"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Enter your password again"
+                        required
+                    >
+
+                    <small id="confirmPasswordError"
+                           class="error"></small>
+                </div>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                    id="registerBtn"
+                >
+                    Create Account
+                </button>
+
+                <p id="formMessage" class="form-message"></p>
+
+            </form>
+
+            <div class="auth-footer">
+                <p>
+                    Already have an account?
+                    <a href="index.html">Login here</a>
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const registerForm =
+            document.getElementById("registerForm");
+
+        const nameInput =
+            document.getElementById("name");
+
+        const emailInput =
+            document.getElementById("email");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const confirmPasswordInput =
+            document.getElementById("confirmPassword");
+
+        const nameError =
+            document.getElementById("nameError");
+
+        const emailError =
+            document.getElementById("emailError");
+
+        const passwordError =
+            document.getElementById("passwordError");
+
+        const confirmPasswordError =
+            document.getElementById("confirmPasswordError");
+
+        const formMessage =
+            document.getElementById("formMessage");
+
+        const registerBtn =
+            document.getElementById("registerBtn");
+
+
+        registerForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                nameError.textContent = "";
+                emailError.textContent = "";
+                passwordError.textContent = "";
+                confirmPasswordError.textContent = "";
+                formMessage.textContent = "";
+
+                const name =
+                    nameInput.value.trim();
+
+                const email =
+                    emailInput.value.trim();
+
+                const password =
+                    passwordInput.value;
+
+                const confirmPassword =
+                    confirmPasswordInput.value;
+
+                let valid = true;
+
+
+                if (name.length < 2) {
+                    nameError.textContent =
+                        "Name must contain at least 2 characters.";
+
+                    valid = false;
+                }
+
+
+                if (!email) {
+                    emailError.textContent =
+                        "Email is required.";
+
+                    valid = false;
+                }
+
+
+                if (password.length < 6) {
+                    passwordError.textContent =
+                        "Password must contain at least 6 characters.";
+
+                    valid = false;
+                }
+
+
+                if (password !== confirmPassword) {
+                    confirmPasswordError.textContent =
+                        "Passwords do not match.";
+
+                    valid = false;
+                }
+
+
+                if (!valid) {
+                    return;
+                }
+
+
+                try {
+
+                    registerBtn.disabled = true;
+
+                    registerBtn.textContent =
+                        "Creating Account...";
+
+
+                    const response = await fetch(
+                        "/api/register",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                name,
+                                email,
+                                password
+                            })
+                        }
+                    );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+                        throw new Error(
+                            data.message ||
+                            "Registration failed."
+                        );
+                    }
+
+
+                    formMessage.textContent =
+                        "Account created successfully!";
+
+                    formMessage.className =
+                        "form-message success";
+
+
+                    registerForm.reset();
+
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "index.html";
+
+                    }, 1000);
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    formMessage.textContent =
+                        error.message;
+
+                    formMessage.className =
+                        "form-message error-message";
+
+
+                } finally {
+
+                    registerBtn.disabled = false;
+
+                    registerBtn.textContent =
+                        "Create Account";
+                }
+
+            }
+        );
+    </script>
+
+</body>
+</html>
